@@ -1,0 +1,1 @@
+docker run -it --privileged --volume=$(pwd):/opt/workspace android-docker bash
