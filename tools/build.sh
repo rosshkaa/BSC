@@ -1,1 +1,1 @@
-./gradlew installDebug
+./gradlew assembleRelease

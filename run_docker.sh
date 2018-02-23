@@ -1,1 +1,1 @@
-docker run -it --privileged --volume=$(pwd):/opt/workspace android-docker bash
+docker run -it --privileged --volume=$(pwd):/opt/workspace androsovv/android-docker:latest bash
