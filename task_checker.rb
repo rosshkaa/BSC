@@ -6,6 +6,7 @@ SOLVE_STATUS_FILE = ARGV[2]
 TASK_ID = ARGV[4]
 
 custom_params = DEFAULT_KV_PARAMS.dup
+custom_params[STUSOL][BUILD] = "true"
 custom_params[INCLUDE_RUN_STDERR] = false
 custom_params[REFSOL][BUILD] = "true"
 custom_params[REFSOL][RUN] = "./checker.sh"

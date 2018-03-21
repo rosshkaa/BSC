@@ -40,12 +40,20 @@ RUN y | /opt/android/tools/bin/sdkmanager "platform-tools" "platforms;android-27
 RUN yes | /opt/android/tools/bin/sdkmanager --licenses
 RUN y | /opt/android/tools/bin/sdkmanager "platform-tools" "platforms;android-27" "tools" "build-tools;27.0.3" "system-images;android-27;google_apis;x86"
 RUN cd /opt/MyApplication && ./gradlew
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ANDROID_HOME/tools/lib
 
 # Create emulator
 RUN /opt/android/tools/bin/avdmanager list
 RUN echo "no" | /opt/android/tools/bin/avdmanager create avd -n test -k "system-images;android-27;google_apis;x86"
+#RUN /opt/android/tools/emulator -avd test -netdelay none -netspeed full
 
-CMD emulator -avd test -force-32bit
+CMD /usr/sbin/sshd -D \
+   -o UseDNS=no\
+   -o UsePAM=no\
+   -o PasswordAuthentication=yes\
+   -o UsePrivilegeSeparation=no\
+   -o PidFile=/tmp/sshd.pid && emulator -avd test
+
 ENV JAVA_OPTS -Xms256m -Xmx512m
 
 # Install Kotlin / Gradle
@@ -54,7 +62,6 @@ RUN	bash sdk.install.sh \
 	source "/root/.sdkman/bin/sdkman-init.sh"\
 	sdk install kotlin \
 	sdk install gradle 4.4
-
 
 # Cleaning
 RUN apt-get clean
