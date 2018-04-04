@@ -36,16 +36,16 @@ COPY tools /opt/tools
 COPY MyApplication /opt/MyApplication
 
 ENV PATH ${PATH}:/opt/tools
-RUN y | /opt/android/tools/bin/sdkmanager "platform-tools" "platforms;android-27" "tools" "build-tools;27.0.3" "system-images;android-27;google_apis;x86"
+RUN echo "y" | /opt/android/tools/bin/sdkmanager "platform-tools" "platforms;android-27" "tools" "build-tools;27.0.3" "build-tools;26.0.2" "system-images;android-27;google_apis;x86" "system-images;android-24;google_apis;x86"
 RUN yes | /opt/android/tools/bin/sdkmanager --licenses
-RUN y | /opt/android/tools/bin/sdkmanager "platform-tools" "platforms;android-27" "tools" "build-tools;27.0.3" "system-images;android-27;google_apis;x86"
+RUN echo "y" | /opt/android/tools/bin/sdkmanager "platform-tools" "platforms;android-27" "tools" "build-tools;27.0.3" "build-tools;26.0.2" "system-images;android-27;google_apis;x86" "system-images;android-24;google_apis;x86"
 RUN cd /opt/MyApplication && ./gradlew
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ANDROID_HOME/tools/lib
+ENV JAVA_OPTS -Xms256m -Xmx512m
 
 # Create emulator
 RUN /opt/android/tools/bin/avdmanager list
 RUN echo "no" | /opt/android/tools/bin/avdmanager create avd -n test -k "system-images;android-27;google_apis;x86"
-#RUN /opt/android/tools/emulator -avd test -netdelay none -netspeed full
 
 CMD /usr/sbin/sshd -D \
    -o UseDNS=no\
@@ -54,8 +54,6 @@ CMD /usr/sbin/sshd -D \
    -o UsePrivilegeSeparation=no\
    -o PidFile=/tmp/sshd.pid && emulator -avd test
 
-ENV JAVA_OPTS -Xms256m -Xmx512m
-
 # Install Kotlin / Gradle
 RUN wget -O sdk.install.sh 'https://get.sdkman.io' --quiet 
 RUN	bash sdk.install.sh \
@@ -63,9 +61,17 @@ RUN	bash sdk.install.sh \
 	sdk install kotlin \
 	sdk install gradle 4.4
 
+# Install display emulator
+RUN apt-get install -y pulseaudio
+RUN apt-get install -y xvfb
+
+# Still necessary to repeat in runtime
+RUN Xvfb :99 & export DISPLAY=:99
+
 # Cleaning
 RUN apt-get clean
+RUN cp -r /root/.android /home/vagrant/.android
+RUN chown -R vagrant:vagrant /home/vagrant/.android
 
-# Go to workspace
-RUN mkdir -p /opt/workspace
-WORKDIR /opt/workspace
+
+# RUN su -s /bin/bash vagrant -c 'cd /opt/MyApplication && ./gradlew --stacktrace'
