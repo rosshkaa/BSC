@@ -10,6 +10,7 @@ Vagrant.configure(2) do |config|
   
   # Move code below (bash) to dockerfile
       builder.vm.provision "shell", inline: <<-EOC
+        sudo chmod 777 /vagrant
         sudo echo 'export ANDROID_HOME=/opt/android' >> /home/vagrant/.bashrc
         sudo echo 'export JAVA_HOME=/usr/lib/jvm/java-8-oracle' >> /home/vagrant/.bashrc
         sudo echo 'export ANDROID_SDK=/opt/android'>> /home/vagrant/.bashrc
